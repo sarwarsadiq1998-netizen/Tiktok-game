@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة تحكم الستريمر</title>
+    <style>
+        body { background: #111; color: #0f0; font-family: monospace; padding: 20px; text-align: center; }
+        button { background: #333; color: #0f0; border: 1px solid #0f0; padding: 10px 20px; margin: 10px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🎮 لوحة تحكم البث المباشر</h1>
+    <button onclick="toggleLeaderboard()">إخفاء/إظهار التوب العالمي</button>
+    <div>
+        <h3>بدء مسابقة سريعة</h3>
+        <input type="number" id="multiplier" placeholder="مضاعف (2)" value="2">
+        <input type="number" id="duration" placeholder="المدة بالثواني (60)" value="60">
+        <button onclick="startContest()">ابدأ المسابقة</button>
+    </div>
+    <div id="result"></div>
+    <script>
+        const SECRET = prompt("أدخل كلمة السر الإدارية:");
+        async function toggleLeaderboard() {
+            const res = await fetch('/api/toggle-leaderboard', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({secret: SECRET}) });
+            const data = await res.json();
+            document.getElementById('result').innerText = data.success ? `تم التبديل: ${data.show}` : "خطأ";
+        }
+        async function startContest() {
+            const multiplier = document.getElementById('multiplier').value;
+            const duration = document.getElementById('duration').value;
+            const res = await fetch('/api/start-contest', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({secret: SECRET, multiplier, duration}) });
+            const data = await res.json();
+            if(data.success) document.getElementById('result').innerText = `بدأت المسابقة! الكود: ${data.code}`;
+            else document.getElementById('result').innerText = "فشل بدء المسابقة";
+        }
+    </script>
+</body>
+</html>
